@@ -28,12 +28,9 @@ const ProductCard = ({ product }: { product: Product }) => (
       </div>
       <p className="text-xs text-primary font-medium">{product.pixPrice} no PIX</p>
       <p className="text-xs text-muted-foreground mb-3">{product.installment}</p>
-      <div className="flex gap-2">
-        <Button variant="shop" className="flex-1 text-xs h-9">EU QUERO</Button>
-        <Link to={`/produto/${product.id}`}>
-          <Button variant="shop-outline" className="text-xs h-9 px-4">VER+</Button>
-        </Link>
-      </div>
+      <Link to={`/produto/${product.id}`}>
+        <Button variant="shop" className="w-full text-xs h-9">VER DETALHES</Button>
+      </Link>
     </div>
   </div>
 );

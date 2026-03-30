@@ -13,7 +13,7 @@ const PromoBanners = () => (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[promo1, promo2, promo3].map((img, i) => (
           <a key={i} href="#" className="block overflow-hidden rounded-sm group">
-            <img src={img} alt={`Promoção ${i + 1}`} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+            <img src={img} alt={`Promoção ${i + 1}`} className="w-full aspect-[4/3] object-contain bg-white group-hover:scale-105 transition-transform duration-300" loading="lazy" />
           </a>
         ))}
       </div>
