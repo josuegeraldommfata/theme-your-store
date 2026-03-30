@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Palette, Image, ShoppingBag, CreditCard, Truck, Menu, Settings, LogOut,
   Eye

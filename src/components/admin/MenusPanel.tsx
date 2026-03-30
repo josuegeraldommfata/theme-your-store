@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, GripVertical } from "lucide-react";
+import { X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 
 interface MenuItem {
