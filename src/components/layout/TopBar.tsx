@@ -1,19 +1,25 @@
 import { Phone, Mail, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useStore } from "@/contexts/StoreContext";
 
-const TopBar = () => (
-  <div className="bg-primary text-primary-foreground text-xs py-2">
-    <div className="container flex items-center justify-between">
-      <div className="flex items-center gap-6">
-        <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> (00) 00000.0000</span>
-        <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> contato@dominio.com.br</span>
-        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Seg a sex das 9 às 12h | 14-18h</span>
-      </div>
-      <div className="flex items-center gap-4">
-        <a href="#" className="hover:underline">Sobre Nós</a>
-        <a href="#" className="hover:underline">Fale Conosco</a>
+const TopBar = () => {
+  const { settings, appearance } = useStore();
+
+  return (
+    <div className="text-xs py-2" style={{ backgroundColor: appearance.topBarBgColor, color: appearance.topBarTextColor }}>
+      <div className="container flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {settings.phone}</span>
+          <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {settings.email}</span>
+          <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {settings.hours}</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <Link to="/quem-somos" className="hover:underline">Sobre Nós</Link>
+          <Link to="/fale-conosco" className="hover:underline">Fale Conosco</Link>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default TopBar;

@@ -1,94 +1,131 @@
-import { Phone, Mail, Clock, MapPin, Facebook, Instagram, Youtube, Twitter } from "lucide-react";
+import { Phone, Mail, Clock, MapPin, Facebook, Instagram, Youtube, Twitter, CreditCard, Shield, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useStore } from "@/contexts/StoreContext";
 
-const Footer = () => (
-  <footer>
-    {/* Instagram Section */}
-    <div className="bg-shop-gray py-10 text-center">
-      <Instagram className="w-10 h-10 mx-auto mb-3" />
-      <p className="text-muted-foreground text-sm">Siga-nos no Instagram</p>
-      <p className="text-xl font-bold">@flexmoda</p>
-    </div>
+const paymentLogos: Record<string, { bg: string; text: string }> = {
+  "Visa": { bg: "#1A1F71", text: "#FFFFFF" },
+  "Mastercard": { bg: "#EB001B", text: "#FFFFFF" },
+  "Amex": { bg: "#006FCF", text: "#FFFFFF" },
+  "Elo": { bg: "#FFCB05", text: "#000000" },
+  "Hipercard": { bg: "#822124", text: "#FFFFFF" },
+  "Discover": { bg: "#FF6600", text: "#FFFFFF" },
+  "Boleto": { bg: "#333333", text: "#FFFFFF" },
+  "Pix": { bg: "#32BCAD", text: "#FFFFFF" },
+};
 
-    {/* Main Footer */}
-    <div className="bg-foreground text-background">
-      <div className="container py-10">
-        {/* Top row */}
-        <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
-          <div className="text-2xl font-extrabold tracking-wider">
-            FLEX<span className="text-primary text-base font-medium tracking-[0.3em] ml-1">MODA</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Facebook className="w-5 h-5 cursor-pointer hover:text-primary transition-colors" />
-            <Instagram className="w-5 h-5 cursor-pointer hover:text-primary transition-colors" />
-            <Youtube className="w-5 h-5 cursor-pointer hover:text-primary transition-colors" />
-            <Twitter className="w-5 h-5 cursor-pointer hover:text-primary transition-colors" />
-          </div>
-          <div className="flex items-center gap-3">
-            <input placeholder="Seu nome" className="bg-transparent border border-background/30 px-4 py-2 text-sm rounded-sm" />
-            <input placeholder="Seu e-mail" className="bg-transparent border border-background/30 px-4 py-2 text-sm rounded-sm" />
-            <button className="bg-background text-foreground font-semibold px-6 py-2 text-sm hover:bg-background/90 transition-colors">CADASTRAR</button>
-          </div>
-        </div>
+const securityLogos: Record<string, { icon: any; color: string }> = {
+  "SSL 256 Bits": { icon: Lock, color: "#22C55E" },
+  "Google Safe Browsing": { icon: Shield, color: "#4285F4" },
+  "Norton Secured": { icon: Shield, color: "#FFCB05" },
+};
 
-        {/* Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-          <div>
-            <h4 className="font-bold mb-4">Categorias</h4>
-            <ul className="space-y-2 text-sm text-background/70">
-              <li><Link to="/" className="hover:text-background">Masculino</Link></li>
-              <li><Link to="/" className="hover:text-background">Feminino</Link></li>
-              <li><Link to="/" className="hover:text-background">Calçados</Link></li>
-              <li><Link to="/" className="hover:text-background">Acessórios</Link></li>
-              <li><Link to="/" className="hover:text-background">Marcas</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold mb-4">Ajuda e Suporte</h4>
-            <ul className="space-y-2 text-sm text-background/70">
-              <li><a href="#" className="hover:text-background">Quem Somos</a></li>
-              <li><a href="#" className="hover:text-background">Trocas e Devoluções</a></li>
-              <li><a href="#" className="hover:text-background">Política de Privacidade</a></li>
-              <li><a href="#" className="hover:text-background">Fale Conosco</a></li>
-              <li><Link to="/login" className="hover:text-background">Minha Conta</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold mb-4">Central de Atendimento</h4>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-center gap-2"><Phone className="w-4 h-4 text-primary" /> (00) 00000.0000</li>
-              <li className="flex items-center gap-2"><Mail className="w-4 h-4 text-primary" /> contato@dominio.com.br</li>
-              <li className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary" /> Seg a sex das 9 às 12h | 14-18h</li>
-              <li className="flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" /> Cidade/Estado</li>
-            </ul>
-          </div>
-        </div>
+const Footer = () => {
+  const { appearance, settings, paymentBadges, securityBadges, menus } = useStore();
 
-        {/* Payment & Security */}
-        <div className="flex flex-wrap items-start justify-between gap-8 border-t border-background/20 pt-8">
-          <div>
-            <h4 className="font-bold mb-3 text-sm">Pagamento</h4>
-            <div className="flex items-center gap-2 flex-wrap">
-              {["VISA", "MC", "AMEX", "ELO", "HIPER", "DISC", "BOLETO", "PIX"].map((m) => (
-                <span key={m} className="bg-background text-foreground text-[10px] font-bold px-2 py-1 rounded-sm">{m}</span>
-              ))}
+  return (
+    <footer>
+      {/* Instagram Section */}
+      <div className="bg-muted py-10 text-center">
+        <Instagram className="w-10 h-10 mx-auto mb-3" />
+        <p className="text-muted-foreground text-sm">Siga-nos no Instagram</p>
+        <p className="text-xl font-bold">{settings.instagram}</p>
+      </div>
+
+      {/* Main Footer */}
+      <div style={{ backgroundColor: appearance.footerBgColor, color: appearance.footerTextColor }}>
+        <div className="container py-10">
+          {/* Top row */}
+          <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
+            <div className="text-2xl font-extrabold tracking-wider">
+              {appearance.storeName.split(" ")[0] || "FLEX"}
+              <span className="text-base font-medium tracking-[0.3em] ml-1" style={{ color: appearance.primaryColor }}>
+                {appearance.storeName.split(" ").slice(1).join(" ") || "MODA"}
+              </span>
             </div>
-          </div>
-          <div>
-            <h4 className="font-bold mb-3 text-sm">Segurança</h4>
+            <div className="flex items-center gap-4">
+              <Facebook className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" />
+              <Instagram className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" />
+              <Youtube className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" />
+              <Twitter className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" />
+            </div>
             <div className="flex items-center gap-3">
-              <span className="bg-background text-foreground text-[10px] font-bold px-3 py-2 rounded-sm">SSL 256 BITS</span>
-              <span className="bg-background text-foreground text-[10px] font-bold px-3 py-2 rounded-sm">GOOGLE SAFE</span>
+              <input placeholder="Seu nome" className="bg-transparent border border-current/30 px-4 py-2 text-sm rounded-sm" />
+              <input placeholder="Seu e-mail" className="bg-transparent border border-current/30 px-4 py-2 text-sm rounded-sm" />
+              <button className="font-semibold px-6 py-2 text-sm transition-colors" style={{ backgroundColor: appearance.footerTextColor, color: appearance.footerBgColor }}>CADASTRAR</button>
             </div>
           </div>
-        </div>
 
-        <div className="border-t border-background/20 mt-8 pt-6 text-xs text-background/50 text-center">
-          © 2025 Flex Moda - Todos os direitos reservados. CNPJ 00.000.000/0001-00
+          {/* Columns */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+            <div>
+              <h4 className="font-bold mb-4">Categorias</h4>
+              <ul className="space-y-2 text-sm opacity-70">
+                {menus.slice(0, 5).map(m => (
+                  <li key={m.id}><Link to={m.link} className="hover:opacity-100">{m.label}</Link></li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold mb-4">Ajuda e Suporte</h4>
+              <ul className="space-y-2 text-sm opacity-70">
+                <li><Link to="/quem-somos" className="hover:opacity-100">Quem Somos</Link></li>
+                <li><Link to="/trocas-devolucoes" className="hover:opacity-100">Trocas e Devoluções</Link></li>
+                <li><Link to="/politica-privacidade" className="hover:opacity-100">Política de Privacidade</Link></li>
+                <li><Link to="/fale-conosco" className="hover:opacity-100">Fale Conosco</Link></li>
+                <li><Link to="/login" className="hover:opacity-100">Minha Conta</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold mb-4">Central de Atendimento</h4>
+              <ul className="space-y-3 text-sm">
+                <li className="flex items-center gap-2"><Phone className="w-4 h-4" style={{ color: appearance.primaryColor }} /> {settings.phone}</li>
+                <li className="flex items-center gap-2"><Mail className="w-4 h-4" style={{ color: appearance.primaryColor }} /> {settings.email}</li>
+                <li className="flex items-center gap-2"><Clock className="w-4 h-4" style={{ color: appearance.primaryColor }} /> {settings.hours}</li>
+                <li className="flex items-center gap-2"><MapPin className="w-4 h-4" style={{ color: appearance.primaryColor }} /> {settings.address}</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Payment & Security */}
+          <div className="flex flex-wrap items-start justify-between gap-8 border-t border-current/20 pt-8">
+            <div>
+              <h4 className="font-bold mb-3 text-sm">Pagamento</h4>
+              <div className="flex items-center gap-2 flex-wrap">
+                {paymentBadges.filter(b => b.active).map((badge) => {
+                  const style = paymentLogos[badge.name] || { bg: "#666", text: "#fff" };
+                  return (
+                    <span key={badge.id} className="text-[10px] font-bold px-3 py-1.5 rounded-sm flex items-center gap-1" style={{ backgroundColor: style.bg, color: style.text }}>
+                      <CreditCard className="w-3 h-3" />
+                      {badge.name}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <h4 className="font-bold mb-3 text-sm">Segurança</h4>
+              <div className="flex items-center gap-3">
+                {securityBadges.filter(b => b.active).map((badge) => {
+                  const style = securityLogos[badge.name] || { icon: Shield, color: "#22C55E" };
+                  const Icon = style.icon;
+                  return (
+                    <span key={badge.id} className="text-[10px] font-bold px-3 py-2 rounded-sm flex items-center gap-1.5 bg-background text-foreground">
+                      <Icon className="w-4 h-4" style={{ color: style.color }} />
+                      {badge.name}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-current/20 mt-8 pt-6 text-xs opacity-50 text-center">
+            © 2026 {appearance.storeName} - Todos os direitos reservados. CNPJ {settings.cnpj}
+          </div>
         </div>
       </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 export default Footer;

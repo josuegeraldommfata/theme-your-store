@@ -2,19 +2,38 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { useStore } from "@/contexts/StoreContext";
+import { toast } from "sonner";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const { setCurrentUser } = useStore();
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === "admin@flex.com" && password === "admin") {
-      navigate("/admin");
+    if (isLogin) {
+      if (email === "admin@flex.com" && password === "admin") {
+        setCurrentUser({ email, name: "Administrador", role: "admin" });
+        toast.success("Bem-vindo, Admin!");
+        navigate("/admin");
+      } else if (email === "cliente@flex.com" && password === "cliente123") {
+        setCurrentUser({ email, name: "Cliente Demo", role: "client" });
+        toast.success("Bem-vindo(a)!");
+        navigate("/minha-conta");
+      } else {
+        toast.error("E-mail ou senha inválidos!");
+      }
     } else {
-      navigate("/");
+      if (!name.trim() || !email.trim() || !password.trim()) {
+        toast.error("Preencha todos os campos!"); return;
+      }
+      setCurrentUser({ email, name, role: "client" });
+      toast.success("Conta criada com sucesso!");
+      navigate("/minha-conta");
     }
   };
 
@@ -27,7 +46,7 @@ const Login = () => {
           {!isLogin && (
             <div>
               <label className="text-sm font-medium block mb-1">Nome completo</label>
-              <input type="text" className="w-full border border-border rounded-sm p-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary" placeholder="Seu nome" />
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full border border-border rounded-sm p-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary" placeholder="Seu nome" />
             </div>
           )}
           <div>
@@ -61,9 +80,15 @@ const Login = () => {
           )}
         </div>
 
-        <div className="mt-8 p-4 bg-muted rounded-sm text-xs text-muted-foreground text-center">
-          <p className="font-semibold text-foreground mb-1">Acesso Admin (demo)</p>
-          <p>Email: admin@flex.com | Senha: admin</p>
+        <div className="mt-8 space-y-2">
+          <div className="p-4 bg-muted rounded-sm text-xs text-muted-foreground text-center">
+            <p className="font-semibold text-foreground mb-1">Acesso Admin (demo)</p>
+            <p>Email: admin@flex.com | Senha: admin</p>
+          </div>
+          <div className="p-4 bg-muted rounded-sm text-xs text-muted-foreground text-center">
+            <p className="font-semibold text-foreground mb-1">Acesso Cliente (demo)</p>
+            <p>Email: cliente@flex.com | Senha: cliente123</p>
+          </div>
         </div>
       </div>
     </Layout>
