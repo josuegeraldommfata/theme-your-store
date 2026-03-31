@@ -1,44 +1,28 @@
-import { useState } from "react";
+import { useStore } from "@/contexts/StoreContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-
-interface Gateway {
-  name: string;
-  desc: string;
-  connected: boolean;
-  apiKey: string;
-  secretKey: string;
-}
-
-const initialGateways: Gateway[] = [
-  { name: "Mercado Pago", desc: "Receba pagamentos via Pix, cartão, boleto", connected: true, apiKey: "APP_USP-****-1234", secretKey: "****" },
-  { name: "PagSeguro", desc: "Pagamentos com PagSeguro/PagBank", connected: false, apiKey: "", secretKey: "" },
-  { name: "Pagar.me", desc: "Gateway de pagamento completo", connected: false, apiKey: "", secretKey: "" },
-];
+import { Info } from "lucide-react";
 
 const PaymentsPanel = () => {
-  const [gateways, setGateways] = useState(initialGateways);
-  const [configuring, setConfiguring] = useState<string | null>(null);
+  const { paymentGateways, setPaymentGateways } = useStore();
 
   const toggleConnection = (name: string) => {
-    setGateways(gateways.map(g => g.name === name ? { ...g, connected: !g.connected } : g));
-    const gw = gateways.find(g => g.name === name);
+    const gw = paymentGateways.find(g => g.name === name);
+    setPaymentGateways(paymentGateways.map(g => g.name === name ? { ...g, connected: !g.connected } : g));
     toast.success(gw?.connected ? `${name} desconectado` : `${name} conectado!`);
   };
 
   const updateKey = (name: string, field: "apiKey" | "secretKey", value: string) => {
-    setGateways(gateways.map(g => g.name === name ? { ...g, [field]: value } : g));
-  };
-
-  const handleSaveConfig = (name: string) => {
-    setConfiguring(null);
-    toast.success(`Configurações de ${name} salvas!`);
+    setPaymentGateways(paymentGateways.map(g => g.name === name ? { ...g, [field]: value } : g));
   };
 
   return (
     <div className="bg-background border border-border rounded-lg p-6 space-y-6">
-      <h2 className="font-bold text-lg">Integrações de Pagamento</h2>
-      {gateways.map((g) => (
+      <div>
+        <h2 className="font-bold text-lg">Integrações de Pagamento</h2>
+        <p className="text-xs text-primary/80 flex items-center gap-1 mt-1"><Info className="w-3 h-3" /> Gateways conectados aparecem como opções no checkout (página do carrinho)</p>
+      </div>
+      {paymentGateways.map((g) => (
         <div key={g.name} className="border border-border rounded-sm overflow-hidden">
           <div className="flex items-center justify-between p-6">
             <div>
@@ -49,15 +33,12 @@ const PaymentsPanel = () => {
               <span className={`text-xs px-3 py-1 rounded-full ${g.connected ? "bg-green-50 text-green-600" : "bg-muted text-muted-foreground"}`}>
                 {g.connected ? "Conectado" : "Desconectado"}
               </span>
-              {g.connected && (
-                <Button variant="shop-outline" size="sm" onClick={() => setConfiguring(configuring === g.name ? null : g.name)}>Configurar</Button>
-              )}
               <Button variant={g.connected ? "outline" : "shop"} size="sm" onClick={() => toggleConnection(g.name)}>
                 {g.connected ? "Desconectar" : "Conectar"}
               </Button>
             </div>
           </div>
-          {configuring === g.name && (
+          {g.connected && (
             <div className="border-t border-border p-6 bg-muted/30 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -69,10 +50,7 @@ const PaymentsPanel = () => {
                   <input type="password" value={g.secretKey} onChange={e => updateKey(g.name, "secretKey", e.target.value)} className="w-full border border-border rounded-sm p-2 text-sm" />
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="shop" size="sm" onClick={() => handleSaveConfig(g.name)}>Salvar</Button>
-                <Button variant="outline" size="sm" onClick={() => setConfiguring(null)}>Cancelar</Button>
-              </div>
+              <Button variant="shop" size="sm" onClick={() => toast.success(`Configurações de ${g.name} salvas!`)}>Salvar</Button>
             </div>
           )}
         </div>
