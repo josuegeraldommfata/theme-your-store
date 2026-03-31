@@ -1,97 +1,71 @@
 import { useState } from "react";
+import { useStore } from "@/contexts/StoreContext";
 import { Button } from "@/components/ui/button";
-import { X, ChevronDown, ChevronRight, Plus } from "lucide-react";
+import { X, ChevronDown, ChevronRight, Plus, Info } from "lucide-react";
 import { toast } from "sonner";
 
-interface SubCategory {
-  id: number;
-  name: string;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  price: string;
-  stock: number;
-  active: boolean;
-  category: string;
-  subcategory: string;
-}
-
-interface Category {
-  name: string;
-  subcategories: SubCategory[];
-}
-
-const initialCategories: Category[] = [
-  { name: "Feminino", subcategories: [{ id: 1, name: "Blusas" }, { id: 2, name: "Vestidos" }, { id: 3, name: "Saias" }] },
-  { name: "Masculino", subcategories: [{ id: 4, name: "Camisetas" }, { id: 5, name: "Calças" }, { id: 6, name: "Bermudas" }] },
-  { name: "Calçados", subcategories: [{ id: 7, name: "Tênis" }, { id: 8, name: "Sandálias" }, { id: 9, name: "Botas" }] },
-  { name: "Acessórios", subcategories: [{ id: 10, name: "Óculos" }, { id: 11, name: "Bolsas" }, { id: 12, name: "Relógios" }] },
-];
-
-const initialProducts: Product[] = [
-  { id: 1, name: "Tênis Casual Branco", price: "R$199,90", stock: 45, active: true, category: "Calçados", subcategory: "Tênis" },
-  { id: 2, name: "Bolsa Couro Premium", price: "R$199,90", stock: 12, active: true, category: "Acessórios", subcategory: "Bolsas" },
-  { id: 3, name: "Óculos Gold Edition", price: "R$199,90", stock: 0, active: false, category: "Acessórios", subcategory: "Óculos" },
-  { id: 4, name: "Camiseta Premium", price: "R$199,90", stock: 88, active: true, category: "Masculino", subcategory: "Camisetas" },
-];
-
 const ProductsPanel = () => {
-  const [products, setProducts] = useState(initialProducts);
-  const [categories, setCategories] = useState(initialCategories);
+  const { products, setProducts, categories, setCategories } = useStore();
   const [showForm, setShowForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [showCatManager, setShowCatManager] = useState(false);
   const [expandedCats, setExpandedCats] = useState<string[]>([]);
   const [newSubCat, setNewSubCat] = useState<Record<string, string>>({});
   const [newCatName, setNewCatName] = useState("");
 
-  // Form state
   const [formName, setFormName] = useState("");
   const [formPrice, setFormPrice] = useState("");
+  const [formOldPrice, setFormOldPrice] = useState("");
   const [formStock, setFormStock] = useState(0);
   const [formCategory, setFormCategory] = useState("");
   const [formSubcategory, setFormSubcategory] = useState("");
+  const [formDescription, setFormDescription] = useState("");
 
   const handleNew = () => {
-    setEditingProduct(null);
-    setFormName(""); setFormPrice(""); setFormStock(0);
-    setFormCategory(categories[0]?.name || ""); setFormSubcategory("");
+    setEditingId(null);
+    setFormName(""); setFormPrice(""); setFormOldPrice(""); setFormStock(0);
+    setFormCategory(categories[0]?.name || ""); setFormSubcategory(""); setFormDescription("");
     setShowForm(true);
   };
 
-  const handleEdit = (p: Product) => {
-    setEditingProduct(p);
-    setFormName(p.name); setFormPrice(p.price); setFormStock(p.stock);
-    setFormCategory(p.category); setFormSubcategory(p.subcategory);
+  const handleEdit = (id: number) => {
+    const p = products.find(p => p.id === id);
+    if (!p) return;
+    setEditingId(id);
+    setFormName(p.name); setFormPrice(p.price); setFormOldPrice(p.oldPrice); setFormStock(p.stock);
+    setFormCategory(p.category); setFormSubcategory(p.subcategory); setFormDescription(p.description);
     setShowForm(true);
   };
 
   const handleSaveProduct = () => {
     if (!formName.trim()) { toast.error("Insira o nome do produto"); return; }
-    if (editingProduct) {
-      setProducts(products.map(p => p.id === editingProduct.id ? { ...p, name: formName, price: formPrice, stock: formStock, category: formCategory, subcategory: formSubcategory } : p));
+    const pixPrice = formPrice.replace("R$", "").replace(",", ".");
+    const pixVal = (parseFloat(pixPrice) * 0.9).toFixed(2).replace(".", ",");
+    
+    if (editingId) {
+      setProducts(products.map(p => p.id === editingId ? {
+        ...p, name: formName, price: formPrice, oldPrice: formOldPrice, stock: formStock,
+        category: formCategory, subcategory: formSubcategory, description: formDescription,
+        pixPrice: `R$${pixVal}`,
+      } : p));
       toast.success("Produto atualizado!");
     } else {
-      setProducts([...products, { id: Date.now(), name: formName, price: formPrice, stock: formStock, active: true, category: formCategory, subcategory: formSubcategory }]);
+      setProducts([...products, {
+        id: Date.now(), name: formName, image: products[0]?.image || "", price: formPrice,
+        oldPrice: formOldPrice, pixPrice: `R$${pixVal}`,
+        installment: "3x sem juros", description: formDescription, category: formCategory,
+        subcategory: formSubcategory, stock: formStock, active: true,
+        colors: [{ name: "Preto", hex: "#222" }, { name: "Branco", hex: "#fff" }],
+        sizes: ["P", "M", "G", "GG"],
+      }]);
       toast.success("Produto criado!");
     }
     setShowForm(false);
   };
 
-  const handleDelete = (id: number) => {
-    setProducts(products.filter(p => p.id !== id));
-    toast.success("Produto excluído!");
-  };
-
-  const handleToggle = (id: number) => {
-    setProducts(products.map(p => p.id === id ? { ...p, active: !p.active } : p));
-  };
-
-  const toggleCat = (name: string) => {
-    setExpandedCats(prev => prev.includes(name) ? prev.filter(c => c !== name) : [...prev, name]);
-  };
+  const handleDelete = (id: number) => { setProducts(products.filter(p => p.id !== id)); toast.success("Produto excluído!"); };
+  const handleToggle = (id: number) => { setProducts(products.map(p => p.id === id ? { ...p, active: !p.active } : p)); };
+  const toggleCat = (name: string) => { setExpandedCats(prev => prev.includes(name) ? prev.filter(c => c !== name) : [...prev, name]); };
 
   const addSubCategory = (catName: string) => {
     const sub = newSubCat[catName]?.trim();
@@ -103,12 +77,11 @@ const ProductsPanel = () => {
 
   const removeSubCategory = (catName: string, subId: number) => {
     setCategories(categories.map(c => c.name === catName ? { ...c, subcategories: c.subcategories.filter(s => s.id !== subId) } : c));
-    toast.success("Subcategoria removida!");
   };
 
   const addCategory = () => {
     if (!newCatName.trim()) return;
-    setCategories([...categories, { name: newCatName, subcategories: [] }]);
+    setCategories([...categories, { name: newCatName, image: "", subcategories: [] }]);
     setNewCatName("");
     toast.success(`Categoria "${newCatName}" criada!`);
   };
@@ -119,7 +92,10 @@ const ProductsPanel = () => {
     <div className="space-y-6">
       <div className="bg-background border border-border rounded-lg p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="font-bold text-lg">Produtos</h2>
+          <div>
+            <h2 className="font-bold text-lg">Produtos</h2>
+            <p className="text-xs text-primary/80 flex items-center gap-1 mt-1"><Info className="w-3 h-3" /> Produtos ativos são exibidos nas vitrines da página inicial e na busca</p>
+          </div>
           <div className="flex gap-2">
             <Button variant="shop-outline" onClick={() => setShowCatManager(!showCatManager)}>
               {showCatManager ? "Fechar Categorias" : "Gerenciar Categorias"}
@@ -128,16 +104,16 @@ const ProductsPanel = () => {
           </div>
         </div>
 
-        {/* Category Manager */}
         {showCatManager && (
           <div className="border border-primary/30 bg-primary/5 rounded-lg p-4 space-y-3">
             <h3 className="font-semibold">Categorias e Subcategorias</h3>
+            <p className="text-xs text-primary/80 flex items-center gap-1"><Info className="w-3 h-3" /> Categorias organizam produtos e aparecem nos círculos da home e nos filtros</p>
             {categories.map((cat) => (
               <div key={cat.name} className="border border-border rounded-sm">
                 <button onClick={() => toggleCat(cat.name)} className="w-full flex items-center justify-between p-3 hover:bg-muted/50">
                   <span className="font-medium text-sm">{cat.name}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">{cat.subcategories.length} subcategorias</span>
+                    <span className="text-xs text-muted-foreground">{cat.subcategories.length} sub</span>
                     {expandedCats.includes(cat.name) ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </div>
                 </button>
@@ -150,13 +126,7 @@ const ProductsPanel = () => {
                       </div>
                     ))}
                     <div className="flex gap-2 pl-4 pt-2">
-                      <input
-                        placeholder="Nova subcategoria"
-                        value={newSubCat[cat.name] || ""}
-                        onChange={e => setNewSubCat({ ...newSubCat, [cat.name]: e.target.value })}
-                        className="border border-border rounded-sm p-2 text-sm flex-1"
-                        onKeyDown={e => e.key === "Enter" && addSubCategory(cat.name)}
-                      />
+                      <input placeholder="Nova subcategoria" value={newSubCat[cat.name] || ""} onChange={e => setNewSubCat({ ...newSubCat, [cat.name]: e.target.value })} className="border border-border rounded-sm p-2 text-sm flex-1" onKeyDown={e => e.key === "Enter" && addSubCategory(cat.name)} />
                       <Button variant="shop-outline" size="sm" onClick={() => addSubCategory(cat.name)}><Plus className="w-3 h-3" /></Button>
                     </div>
                   </div>
@@ -170,11 +140,10 @@ const ProductsPanel = () => {
           </div>
         )}
 
-        {/* Product Form */}
         {showForm && (
           <div className="border border-primary/30 bg-primary/5 rounded-lg p-4 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold">{editingProduct ? "Editar Produto" : "Novo Produto"}</h3>
+              <h3 className="font-semibold">{editingId ? "Editar Produto" : "Novo Produto"}</h3>
               <button onClick={() => setShowForm(false)}><X className="w-4 h-4" /></button>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -184,7 +153,11 @@ const ProductsPanel = () => {
               </div>
               <div>
                 <label className="text-sm font-medium block mb-1">Preço</label>
-                <input value={formPrice} onChange={e => setFormPrice(e.target.value)} className="w-full border border-border rounded-sm p-2 text-sm" placeholder="R$0,00" />
+                <input value={formPrice} onChange={e => setFormPrice(e.target.value)} className="w-full border border-border rounded-sm p-2 text-sm" placeholder="R$199,90" />
+              </div>
+              <div>
+                <label className="text-sm font-medium block mb-1">Preço Anterior</label>
+                <input value={formOldPrice} onChange={e => setFormOldPrice(e.target.value)} className="w-full border border-border rounded-sm p-2 text-sm" placeholder="R$249,90" />
               </div>
               <div>
                 <label className="text-sm font-medium block mb-1">Estoque</label>
@@ -204,11 +177,13 @@ const ProductsPanel = () => {
                   {selectedCat?.subcategories.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                 </select>
               </div>
+              <div className="col-span-2">
+                <label className="text-sm font-medium block mb-1">Descrição</label>
+                <textarea value={formDescription} onChange={e => setFormDescription(e.target.value)} rows={3} className="w-full border border-border rounded-sm p-2 text-sm resize-none" />
+              </div>
               <div>
                 <label className="text-sm font-medium block mb-1">Imagem</label>
-                <div className="border-2 border-dashed border-border rounded-sm p-4 text-center text-sm text-muted-foreground cursor-pointer hover:border-primary transition-colors">
-                  Enviar imagem
-                </div>
+                <div className="border-2 border-dashed border-border rounded-sm p-4 text-center text-sm text-muted-foreground cursor-pointer hover:border-primary transition-colors">Enviar imagem</div>
               </div>
             </div>
             <Button variant="shop" onClick={handleSaveProduct}>SALVAR PRODUTO</Button>
@@ -240,7 +215,7 @@ const ProductsPanel = () => {
                     </button>
                   </td>
                   <td className="py-3 text-right space-x-2">
-                    <Button variant="ghost" size="sm" onClick={() => handleEdit(p)}>Editar</Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleEdit(p.id)}>Editar</Button>
                     <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(p.id)}>Excluir</Button>
                   </td>
                 </tr>
