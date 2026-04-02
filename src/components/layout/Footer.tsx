@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Phone, Mail, Clock, MapPin, Facebook, Instagram, Youtube, Twitter, CreditCard, Shield, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/contexts/StoreContext";
+import { toast } from "sonner";
 
 const paymentLogos: Record<string, { bg: string; text: string }> = {
   "Visa": { bg: "#1A1F71", text: "#FFFFFF" },
@@ -21,20 +23,25 @@ const securityLogos: Record<string, { icon: any; color: string }> = {
 
 const Footer = () => {
   const { appearance, settings, paymentBadges, securityBadges, menus } = useStore();
+  const [nlName, setNlName] = useState("");
+  const [nlEmail, setNlEmail] = useState("");
+
+  const handleNewsletter = () => {
+    if (!nlEmail) { toast.error("Informe seu e-mail"); return; }
+    toast.success("Cadastrado com sucesso! Você receberá nossas novidades.");
+    setNlName(""); setNlEmail("");
+  };
 
   return (
     <footer>
-      {/* Instagram Section */}
       <div className="bg-muted py-10 text-center">
         <Instagram className="w-10 h-10 mx-auto mb-3" />
         <p className="text-muted-foreground text-sm">Siga-nos no Instagram</p>
         <p className="text-xl font-bold">{settings.instagram}</p>
       </div>
 
-      {/* Main Footer */}
       <div style={{ backgroundColor: appearance.footerBgColor, color: appearance.footerTextColor }}>
         <div className="container py-10">
-          {/* Top row */}
           <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
             <div className="text-2xl font-extrabold tracking-wider">
               {appearance.storeName.split(" ")[0] || "FLEX"}
@@ -49,13 +56,12 @@ const Footer = () => {
               <Twitter className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" />
             </div>
             <div className="flex items-center gap-3">
-              <input placeholder="Seu nome" className="bg-transparent border border-current/30 px-4 py-2 text-sm rounded-sm" />
-              <input placeholder="Seu e-mail" className="bg-transparent border border-current/30 px-4 py-2 text-sm rounded-sm" />
-              <button className="font-semibold px-6 py-2 text-sm transition-colors" style={{ backgroundColor: appearance.footerTextColor, color: appearance.footerBgColor }}>CADASTRAR</button>
+              <input placeholder="Seu nome" value={nlName} onChange={e => setNlName(e.target.value)} className="bg-transparent border border-current/30 px-4 py-2 text-sm rounded-sm" />
+              <input placeholder="Seu e-mail" value={nlEmail} onChange={e => setNlEmail(e.target.value)} className="bg-transparent border border-current/30 px-4 py-2 text-sm rounded-sm" />
+              <button onClick={handleNewsletter} className="font-semibold px-6 py-2 text-sm transition-colors" style={{ backgroundColor: appearance.footerTextColor, color: appearance.footerBgColor }}>CADASTRAR</button>
             </div>
           </div>
 
-          {/* Columns */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div>
               <h4 className="font-bold mb-4">Categorias</h4>
@@ -69,6 +75,7 @@ const Footer = () => {
               <h4 className="font-bold mb-4">Ajuda e Suporte</h4>
               <ul className="space-y-2 text-sm opacity-70">
                 <li><Link to="/quem-somos" className="hover:opacity-100">Quem Somos</Link></li>
+                <li><Link to="/ajuda" className="hover:opacity-100">Ajuda e Suporte</Link></li>
                 <li><Link to="/trocas-devolucoes" className="hover:opacity-100">Trocas e Devoluções</Link></li>
                 <li><Link to="/politica-privacidade" className="hover:opacity-100">Política de Privacidade</Link></li>
                 <li><Link to="/fale-conosco" className="hover:opacity-100">Fale Conosco</Link></li>
@@ -86,7 +93,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Payment & Security */}
           <div className="flex flex-wrap items-start justify-between gap-8 border-t border-current/20 pt-8">
             <div>
               <h4 className="font-bold mb-3 text-sm">Pagamento</h4>
