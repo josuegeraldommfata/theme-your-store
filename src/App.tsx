@@ -14,6 +14,7 @@ import AboutUs from "./pages/AboutUs.tsx";
 import ExchangePolicy from "./pages/ExchangePolicy.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import ContactUs from "./pages/ContactUs.tsx";
+import HelpSupport from "./pages/HelpSupport.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/trocas-devolucoes" element={<ExchangePolicy />} />
             <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
             <Route path="/fale-conosco" element={<ContactUs />} />
+            <Route path="/ajuda" element={<HelpSupport />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,37 @@ import { Minus, Plus, Heart, Truck, Shield, RefreshCw, ShoppingBag } from "lucid
 import { useStore } from "@/contexts/StoreContext";
 import ProductShowcase from "@/components/home/ProductShowcase";
 import { toast } from "sonner";
+
+/**
+ * Generates a CSS hue-rotate + saturate filter to tint any product image 
+ * toward the selected color. Works with any uploaded image.
+ */
+const getColorFilter = (hex: string): React.CSSProperties => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+
+  // Very light colors (white-ish) or very dark (black-ish) → no tint needed
+  const brightness = (r + g + b) / 3;
+  if (brightness > 230 || brightness < 30) return {};
+
+  // Convert to HSL to get hue
+  const rn = r / 255, gn = g / 255, bn = b / 255;
+  const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
+  let h = 0;
+  if (max !== min) {
+    const d = max - min;
+    if (max === rn) h = ((gn - bn) / d + (gn < bn ? 6 : 0)) * 60;
+    else if (max === gn) h = ((bn - rn) / d + 2) * 60;
+    else h = ((rn - gn) / d + 4) * 60;
+  }
+  const sat = Math.max(0.3, (max - min) / (max || 1));
+
+  return {
+    filter: `sepia(0.4) hue-rotate(${Math.round(h - 50)}deg) saturate(${(1.2 + sat).toFixed(1)})`,
+    transition: "filter 0.4s ease",
+  };
+};
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -18,7 +49,16 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState(product?.colors[0] || { name: "", hex: "" });
   const [zoomStyle, setZoomStyle] = useState<React.CSSProperties>({});
   const [isZooming, setIsZooming] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
+
+  // Color filter for tinting
+  const colorFilter = useMemo(() => {
+    if (!selectedColor.hex) return {};
+    // First color = original photo, no filter
+    if (product?.colors[0]?.hex === selectedColor.hex) return {};
+    return getColorFilter(selectedColor.hex);
+  }, [selectedColor.hex, product?.colors]);
 
   if (!product) return <Layout><div className="container py-16 text-center"><p>Produto não encontrado</p></div></Layout>;
 
@@ -68,9 +108,27 @@ const ProductDetail = () => {
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-auto object-cover transition-transform duration-200"
-              style={isZooming ? zoomStyle : {}}
+              className="w-full h-auto object-cover transition-all duration-300"
+              style={{ ...(isZooming ? zoomStyle : {}), ...colorFilter }}
             />
+          </div>
+
+          {/* Thumbnails row showing color variants */}
+          <div className="md:hidden flex gap-2 mt-2">
+            {product.colors.map(color => (
+              <button
+                key={color.name}
+                onClick={() => setSelectedColor(color)}
+                className={`w-16 h-16 rounded-sm overflow-hidden border-2 ${color.name === selectedColor.name ? "border-primary" : "border-border"}`}
+              >
+                <img
+                  src={product.image}
+                  alt={color.name}
+                  className="w-full h-full object-cover"
+                  style={product.colors[0].hex === color.hex ? {} : getColorFilter(color.hex)}
+                />
+              </button>
+            ))}
           </div>
 
           <div>
@@ -83,7 +141,7 @@ const ProductDetail = () => {
             <p className="font-semibold mb-1" style={{ color: appearance.primaryColor }}>{product.pixPrice} no PIX</p>
             <p className="text-sm text-muted-foreground mb-6">{product.installment}</p>
 
-            {/* Color selector */}
+            {/* Color selector with mini preview */}
             <div className="mb-6">
               <p className="text-sm font-semibold mb-2">Cor: <span className="font-normal text-muted-foreground">{selectedColor.name}</span></p>
               <div className="flex gap-2">
@@ -95,6 +153,23 @@ const ProductDetail = () => {
                     style={{ backgroundColor: color.hex }}
                     title={color.name}
                   />
+                ))}
+              </div>
+              {/* Small thumbnails */}
+              <div className="hidden md:flex gap-2 mt-3">
+                {product.colors.map(color => (
+                  <button
+                    key={color.name}
+                    onClick={() => setSelectedColor(color)}
+                    className={`w-14 h-14 rounded-sm overflow-hidden border-2 transition-all ${color.name === selectedColor.name ? "border-primary" : "border-border hover:border-foreground"}`}
+                  >
+                    <img
+                      src={product.image}
+                      alt={color.name}
+                      className="w-full h-full object-cover"
+                      style={product.colors[0].hex === color.hex ? {} : getColorFilter(color.hex)}
+                    />
+                  </button>
                 ))}
               </div>
             </div>
@@ -129,8 +204,11 @@ const ProductDetail = () => {
               <Button variant="shop" size="lg" className="flex-1 py-6 gap-2" onClick={buyNow} disabled={product.stock === 0}>
                 <ShoppingBag className="w-5 h-5" /> COMPRAR
               </Button>
-              <button className="p-3 border border-border hover:border-primary hover:text-primary transition-colors">
-                <Heart className="w-5 h-5" />
+              <button
+                onClick={() => { setIsFavorite(!isFavorite); toast.success(isFavorite ? "Removido dos favoritos" : "Adicionado aos favoritos!"); }}
+                className={`p-3 border transition-colors ${isFavorite ? "border-primary text-primary bg-primary/5" : "border-border hover:border-primary hover:text-primary"}`}
+              >
+                <Heart className={`w-5 h-5 ${isFavorite ? "fill-primary" : ""}`} />
               </button>
             </div>
 
