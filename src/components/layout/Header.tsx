@@ -8,7 +8,7 @@ const Header = () => {
   const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
   const [searchTerm, setSearchTerm] = useState("");
   const [showResults, setShowResults] = useState(false);
-  const navigate = useNavigate();
+  
 
   const searchResults = searchTerm.length >= 2
     ? products.filter(p => p.active && (
