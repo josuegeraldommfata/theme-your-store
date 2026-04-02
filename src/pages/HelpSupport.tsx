@@ -3,7 +3,7 @@ import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/contexts/StoreContext";
 import { HelpCircle, Package, RefreshCw, CreditCard, Truck, Shield, ChevronDown, ChevronUp, MessageCircle, Search } from "lucide-react";
-import { toast } from "sonner";
+
 
 const faqData = [
   {

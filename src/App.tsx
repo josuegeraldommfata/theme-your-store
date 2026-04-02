@@ -37,6 +37,7 @@ const App = () => (
             <Route path="/trocas-devolucoes" element={<ExchangePolicy />} />
             <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
             <Route path="/fale-conosco" element={<ContactUs />} />
+            <Route path="/ajuda" element={<HelpSupport />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
