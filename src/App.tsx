@@ -8,6 +8,7 @@ import Index from "./pages/Index.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import Login from "./pages/Login.tsx";
 import Cart from "./pages/Cart.tsx";
+import Checkout from "./pages/Checkout.tsx";
 import Admin from "./pages/Admin.tsx";
 import ClientDashboard from "./pages/ClientDashboard.tsx";
 import AboutUs from "./pages/AboutUs.tsx";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/produto/:id" element={<ProductDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/carrinho" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/minha-conta" element={<ClientDashboard />} />
             <Route path="/quem-somos" element={<AboutUs />} />

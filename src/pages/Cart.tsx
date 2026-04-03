@@ -29,9 +29,7 @@ const Cart = () => {
   const pixTotal = total * 0.9;
 
   const handleFinalize = () => {
-    toast.success("Pedido realizado com sucesso!");
-    setCart([]);
-    navigate("/");
+    navigate("/checkout");
   };
 
   return (
