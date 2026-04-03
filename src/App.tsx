@@ -8,6 +8,7 @@ import Index from "./pages/Index.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import Login from "./pages/Login.tsx";
 import Cart from "./pages/Cart.tsx";
+import Checkout from "./pages/Checkout.tsx";
 import Admin from "./pages/Admin.tsx";
 import ClientDashboard from "./pages/ClientDashboard.tsx";
 import AboutUs from "./pages/AboutUs.tsx";
