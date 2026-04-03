@@ -9,7 +9,7 @@ import { CreditCard, QrCode, FileText, Check, Loader2 } from "lucide-react";
 type Step = "address" | "shipping" | "payment" | "review" | "processing" | "done";
 
 const Checkout = () => {
-  const { cart, setCart, products, orders, setOrders, currentUser, paymentGateways, appearance } = useStore();
+  const { cart, setCart, products, orders, setOrders, currentUser, appearance } = useStore();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("address");
   const [paymentMethod, setPaymentMethod] = useState("pix");
