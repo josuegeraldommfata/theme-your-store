@@ -16,6 +16,7 @@ import ExchangePolicy from "./pages/ExchangePolicy.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import ContactUs from "./pages/ContactUs.tsx";
 import HelpSupport from "./pages/HelpSupport.tsx";
+import CategoryPage from "./pages/CategoryPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/produto/:id" element={<ProductDetail />} />
+            <Route path="/categoria/:name" element={<CategoryPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/carrinho" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
