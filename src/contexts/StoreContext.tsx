@@ -65,6 +65,8 @@ export interface ShippingProvider {
   name: string;
   desc: string;
   connected: boolean;
+  token: string;
+  apiKey: string;
 }
 
 export interface PaymentGateway {
@@ -87,6 +89,8 @@ export interface StoreAppearance {
   footerTextColor: string;
   topBarBgColor: string;
   topBarTextColor: string;
+  logo: string;
+  favicon: string;
 }
 
 export interface StoreSettings {
@@ -133,10 +137,8 @@ interface StoreContextType {
   setShippingProviders: (s: ShippingProvider[]) => void;
   orders: StoreOrder[];
   setOrders: (o: StoreOrder[]) => void;
-  // Auth
   currentUser: { email: string; name: string; role: "admin" | "client" } | null;
   setCurrentUser: (u: { email: string; name: string; role: "admin" | "client" } | null) => void;
-  // Cart
   cart: { productId: number; qty: number; size: string; color: string }[];
   setCart: (c: { productId: number; qty: number; size: string; color: string }[]) => void;
 }
@@ -182,6 +184,8 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     footerTextColor: "#ffffff",
     topBarBgColor: "#d6246e",
     topBarTextColor: "#ffffff",
+    logo: "",
+    favicon: "",
   });
 
   const [settings, setSettings] = useState<StoreSettings>({
@@ -196,20 +200,20 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<StoreProduct[]>(defaultProducts);
 
   const [banners, setBanners] = useState<StoreBanner[]>([
-    { id: 1, name: "Banner Principal 1", image: "", title: "Nova Coleção Feminina", subtitle: "Até 30% OFF em peças selecionadas", cta: "COMPRAR AGORA", link: "/", active: true, type: "hero" },
-    { id: 2, name: "Banner Principal 2", image: "", title: "Streetwear Masculino", subtitle: "Novidades toda semana", cta: "VER COLEÇÃO", link: "/", active: true, type: "hero" },
-    { id: 3, name: "Promo 1", image: "", title: "Até 50% OFF", subtitle: "", cta: "", link: "/", active: true, type: "promo" },
-    { id: 4, name: "Promo 2", image: "", title: "Frete Grátis", subtitle: "", cta: "", link: "/", active: true, type: "promo" },
-    { id: 5, name: "Promo 3", image: "", title: "Novidades", subtitle: "", cta: "", link: "/", active: true, type: "promo" },
-    { id: 6, name: "Banner Destaque", image: "", title: "Coleção Premium", subtitle: "Exclusividade que você merece", cta: "", link: "/", active: true, type: "destaque" },
+    { id: 1, name: "Banner Principal 1", image: "", title: "Nova Coleção Feminina", subtitle: "Até 30% OFF em peças selecionadas", cta: "COMPRAR AGORA", link: "/categoria/Feminino", active: true, type: "hero" },
+    { id: 2, name: "Banner Principal 2", image: "", title: "Streetwear Masculino", subtitle: "Novidades toda semana", cta: "VER COLEÇÃO", link: "/categoria/Masculino", active: true, type: "hero" },
+    { id: 3, name: "Promo 1", image: "", title: "Até 50% OFF", subtitle: "", cta: "", link: "/categoria/Feminino", active: true, type: "promo" },
+    { id: 4, name: "Promo 2", image: "", title: "Frete Grátis", subtitle: "", cta: "", link: "/categoria/Calçados", active: true, type: "promo" },
+    { id: 5, name: "Promo 3", image: "", title: "Novidades", subtitle: "", cta: "", link: "/categoria/Acessórios", active: true, type: "promo" },
+    { id: 6, name: "Banner Destaque", image: "", title: "Coleção Premium", subtitle: "Exclusividade que você merece", cta: "", link: "/categoria/Feminino", active: true, type: "destaque" },
   ]);
 
   const [menus, setMenus] = useState<StoreMenuItem[]>([
-    { id: 1, label: "FEMININO", link: "/" },
-    { id: 2, label: "MASCULINO", link: "/" },
-    { id: 3, label: "CALÇADOS", link: "/" },
-    { id: 4, label: "ACESSÓRIOS", link: "/" },
-    { id: 5, label: "MARCAS", link: "/" },
+    { id: 1, label: "FEMININO", link: "/categoria/Feminino" },
+    { id: 2, label: "MASCULINO", link: "/categoria/Masculino" },
+    { id: 3, label: "CALÇADOS", link: "/categoria/Calçados" },
+    { id: 4, label: "ACESSÓRIOS", link: "/categoria/Acessórios" },
+    { id: 5, label: "OFERTAS", link: "/categoria/Ofertas" },
   ]);
 
   const [categories, setCategories] = useState<StoreCategory[]>([
@@ -252,9 +256,9 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   ]);
 
   const [shippingProviders, setShippingProviders] = useState<ShippingProvider[]>([
-    { name: "Correios", desc: "PAC, SEDEX, Mini Envios", connected: true },
-    { name: "Melhor Envio", desc: "Cotação com múltiplas transportadoras", connected: false },
-    { name: "Jadlog", desc: "Encomendas e cargas", connected: false },
+    { name: "Correios", desc: "PAC, SEDEX, Mini Envios", connected: true, token: "TOKEN-CORREIOS-****", apiKey: "" },
+    { name: "Melhor Envio", desc: "Cotação com múltiplas transportadoras", connected: false, token: "", apiKey: "" },
+    { name: "Jadlog", desc: "Encomendas e cargas", connected: false, token: "", apiKey: "" },
   ]);
 
   const [orders, setOrders] = useState<StoreOrder[]>(defaultOrders);

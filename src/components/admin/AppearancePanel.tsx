@@ -1,11 +1,54 @@
+import { useRef, useEffect } from "react";
 import { useStore } from "@/contexts/StoreContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Info } from "lucide-react";
+import { Info, Upload, X } from "lucide-react";
 
 const Hint = ({ text }: { text: string }) => (
   <p className="text-xs text-primary/80 flex items-center gap-1 mt-1"><Info className="w-3 h-3" /> {text}</p>
 );
+
+const ImageUpload = ({ label, hint, value, onChange }: { label: string; hint: string; value: string; onChange: (v: string) => void }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Envie apenas imagens"); return; }
+    const reader = new FileReader();
+    reader.onload = () => onChange(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  };
+
+  return (
+    <div>
+      <label className="text-sm font-medium block mb-2">{label}</label>
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
+      {value ? (
+        <div className="relative border border-border rounded-sm p-2 flex items-center gap-3">
+          <img src={value} alt={label} className="w-16 h-16 object-contain rounded-sm" />
+          <span className="text-xs text-muted-foreground flex-1">Imagem carregada</span>
+          <button onClick={() => onChange("")} className="text-destructive hover:bg-destructive/10 p-1 rounded-sm"><X className="w-4 h-4" /></button>
+          <button onClick={() => inputRef.current?.click()} className="text-primary hover:bg-primary/10 p-1 rounded-sm text-xs font-medium">Trocar</button>
+        </div>
+      ) : (
+        <div
+          onClick={() => inputRef.current?.click()}
+          onDragOver={e => e.preventDefault()}
+          onDrop={handleDrop}
+          className="border-2 border-dashed border-border rounded-sm p-8 text-center text-sm text-muted-foreground cursor-pointer hover:border-primary transition-colors flex flex-col items-center gap-2"
+        >
+          <Upload className="w-5 h-5" />
+          Arraste ou clique para enviar
+        </div>
+      )}
+      <Hint text={hint} />
+    </div>
+  );
+};
 
 const AppearancePanel = () => {
   const { appearance, setAppearance } = useStore();
@@ -13,6 +56,15 @@ const AppearancePanel = () => {
   const update = (field: keyof typeof appearance, value: string) => {
     setAppearance({ ...appearance, [field]: value });
   };
+
+  // Update favicon in browser when changed
+  useEffect(() => {
+    if (appearance.favicon) {
+      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+      if (!link) { link = document.createElement("link"); link.rel = "icon"; document.head.appendChild(link); }
+      link.href = appearance.favicon;
+    }
+  }, [appearance.favicon]);
 
   const handleSave = () => {
     toast.success("Aparência salva! As alterações já estão visíveis na loja.");
@@ -103,20 +155,8 @@ const AppearancePanel = () => {
           </div>
           <Hint text="Cor do texto, links e ícones do rodapé" />
         </div>
-        <div>
-          <label className="text-sm font-medium block mb-2">Logo</label>
-          <div className="border-2 border-dashed border-border rounded-sm p-8 text-center text-sm text-muted-foreground cursor-pointer hover:border-primary transition-colors">
-            Arraste ou clique para enviar
-          </div>
-          <Hint text="Logo exibida no header e rodapé" />
-        </div>
-        <div>
-          <label className="text-sm font-medium block mb-2">Favicon</label>
-          <div className="border-2 border-dashed border-border rounded-sm p-8 text-center text-sm text-muted-foreground cursor-pointer hover:border-primary transition-colors">
-            Arraste ou clique para enviar
-          </div>
-          <Hint text="Ícone que aparece na aba do navegador" />
-        </div>
+        <ImageUpload label="Logo" hint="Logo exibida no header e rodapé da loja" value={appearance.logo} onChange={v => update("logo", v)} />
+        <ImageUpload label="Favicon" hint="Ícone que aparece na aba do navegador (16x16 ou 32x32)" value={appearance.favicon} onChange={v => update("favicon", v)} />
       </div>
 
       <div className="border-t border-border pt-4">
@@ -126,7 +166,11 @@ const AppearancePanel = () => {
             Barra superior - telefone, email
           </div>
           <div className="p-4 flex items-center justify-between" style={{ backgroundColor: appearance.headerBgColor }}>
-            <span className="text-xl font-extrabold" style={{ color: appearance.textColor }}>{appearance.storeName}</span>
+            {appearance.logo ? (
+              <img src={appearance.logo} alt="Logo" className="h-10 object-contain" />
+            ) : (
+              <span className="text-xl font-extrabold" style={{ color: appearance.textColor }}>{appearance.storeName}</span>
+            )}
             <button className="px-4 py-2 rounded text-sm font-bold" style={{ backgroundColor: appearance.buttonColor, color: appearance.buttonTextColor }}>COMPRAR</button>
           </div>
           <div className="p-4 text-sm" style={{ backgroundColor: appearance.footerBgColor, color: appearance.footerTextColor }}>

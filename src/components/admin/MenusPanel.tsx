@@ -4,14 +4,14 @@ import { X, GripVertical, Info } from "lucide-react";
 import { toast } from "sonner";
 
 const MenusPanel = () => {
-  const { menus, setMenus } = useStore();
+  const { menus, setMenus, categories } = useStore();
 
   const updateMenu = (id: number, field: "label" | "link", value: string) => {
     setMenus(menus.map(m => m.id === id ? { ...m, [field]: value } : m));
   };
 
   const addItem = () => {
-    setMenus([...menus, { id: Date.now(), label: "", link: "/" }]);
+    setMenus([...menus, { id: Date.now(), label: "", link: "/categoria/" }]);
   };
 
   const removeItem = (id: number) => {
@@ -23,6 +23,14 @@ const MenusPanel = () => {
     toast.success("Menus salvos! Alterações já visíveis na loja.");
   };
 
+  const suggestedLinks = [
+    { label: "Página inicial", value: "/" },
+    ...categories.map(c => ({ label: `Categoria: ${c.name}`, value: `/categoria/${c.name}` })),
+    { label: "Ofertas", value: "/categoria/Ofertas" },
+    { label: "Quem Somos", value: "/quem-somos" },
+    { label: "Fale Conosco", value: "/fale-conosco" },
+  ];
+
   return (
     <div className="bg-background border border-border rounded-lg p-6 space-y-6">
       <div>
@@ -32,12 +40,33 @@ const MenusPanel = () => {
       <div className="space-y-3">
         {menus.map((m) => (
           <div key={m.id} className="flex items-center justify-between p-3 border border-border rounded-sm">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-1">
               <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
-              <input value={m.label} onChange={e => updateMenu(m.id, "label", e.target.value)} className="border border-border rounded-sm p-2 text-sm" placeholder="Nome do menu" />
-              <input value={m.link} onChange={e => updateMenu(m.id, "link", e.target.value)} placeholder="Link" className="border border-border rounded-sm p-2 text-sm w-40" />
+              <input value={m.label} onChange={e => updateMenu(m.id, "label", e.target.value)} className="border border-border rounded-sm p-2 text-sm w-40" placeholder="Nome do menu" />
+              <div className="flex-1">
+                <select
+                  value={suggestedLinks.find(s => s.value === m.link) ? m.link : "__custom__"}
+                  onChange={e => {
+                    if (e.target.value !== "__custom__") updateMenu(m.id, "link", e.target.value);
+                  }}
+                  className="border border-border rounded-sm p-2 text-sm w-full"
+                >
+                  {suggestedLinks.map(s => (
+                    <option key={s.value} value={s.value}>{s.label} → {s.value}</option>
+                  ))}
+                  <option value="__custom__">Link personalizado</option>
+                </select>
+                {!suggestedLinks.find(s => s.value === m.link) && (
+                  <input
+                    value={m.link}
+                    onChange={e => updateMenu(m.id, "link", e.target.value)}
+                    placeholder="/categoria/NomeDaCategoria"
+                    className="border border-border rounded-sm p-2 text-sm w-full mt-1"
+                  />
+                )}
+              </div>
             </div>
-            <button onClick={() => removeItem(m.id)} className="text-destructive hover:bg-destructive/10 p-2 rounded-sm transition-colors">
+            <button onClick={() => removeItem(m.id)} className="text-destructive hover:bg-destructive/10 p-2 rounded-sm transition-colors ml-2">
               <X className="w-4 h-4" />
             </button>
           </div>

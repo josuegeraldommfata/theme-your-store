@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useStore } from "@/contexts/StoreContext";
 import { Button } from "@/components/ui/button";
-import { X, ChevronDown, ChevronRight, Plus, Info } from "lucide-react";
+import { X, ChevronDown, ChevronRight, Plus, Info, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 const ProductsPanel = () => {
@@ -12,6 +12,7 @@ const ProductsPanel = () => {
   const [expandedCats, setExpandedCats] = useState<string[]>([]);
   const [newSubCat, setNewSubCat] = useState<Record<string, string>>({});
   const [newCatName, setNewCatName] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const [formName, setFormName] = useState("");
   const [formPrice, setFormPrice] = useState("");
@@ -20,11 +21,19 @@ const ProductsPanel = () => {
   const [formCategory, setFormCategory] = useState("");
   const [formSubcategory, setFormSubcategory] = useState("");
   const [formDescription, setFormDescription] = useState("");
+  const [formImage, setFormImage] = useState("");
+
+  const handleFile = (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Envie apenas imagens"); return; }
+    const reader = new FileReader();
+    reader.onload = () => setFormImage(reader.result as string);
+    reader.readAsDataURL(file);
+  };
 
   const handleNew = () => {
     setEditingId(null);
     setFormName(""); setFormPrice(""); setFormOldPrice(""); setFormStock(0);
-    setFormCategory(categories[0]?.name || ""); setFormSubcategory(""); setFormDescription("");
+    setFormCategory(categories[0]?.name || ""); setFormSubcategory(""); setFormDescription(""); setFormImage("");
     setShowForm(true);
   };
 
@@ -33,7 +42,7 @@ const ProductsPanel = () => {
     if (!p) return;
     setEditingId(id);
     setFormName(p.name); setFormPrice(p.price); setFormOldPrice(p.oldPrice); setFormStock(p.stock);
-    setFormCategory(p.category); setFormSubcategory(p.subcategory); setFormDescription(p.description);
+    setFormCategory(p.category); setFormSubcategory(p.subcategory); setFormDescription(p.description); setFormImage(p.image);
     setShowForm(true);
   };
 
@@ -46,12 +55,12 @@ const ProductsPanel = () => {
       setProducts(products.map(p => p.id === editingId ? {
         ...p, name: formName, price: formPrice, oldPrice: formOldPrice, stock: formStock,
         category: formCategory, subcategory: formSubcategory, description: formDescription,
-        pixPrice: `R$${pixVal}`,
+        pixPrice: `R$${pixVal}`, image: formImage || p.image,
       } : p));
       toast.success("Produto atualizado!");
     } else {
       setProducts([...products, {
-        id: Date.now(), name: formName, image: products[0]?.image || "", price: formPrice,
+        id: Date.now(), name: formName, image: formImage || "/products/product-1.jpg", price: formPrice,
         oldPrice: formOldPrice, pixPrice: `R$${pixVal}`,
         installment: "3x sem juros", description: formDescription, category: formCategory,
         subcategory: formSubcategory, stock: formStock, active: true,
@@ -86,6 +95,11 @@ const ProductsPanel = () => {
     toast.success(`Categoria "${newCatName}" criada!`);
   };
 
+  const removeCategory = (name: string) => {
+    setCategories(categories.filter(c => c.name !== name));
+    toast.success(`Categoria "${name}" removida!`);
+  };
+
   const selectedCat = categories.find(c => c.name === formCategory);
 
   return (
@@ -114,6 +128,7 @@ const ProductsPanel = () => {
                   <span className="font-medium text-sm">{cat.name}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground">{cat.subcategories.length} sub</span>
+                    <button onClick={(e) => { e.stopPropagation(); removeCategory(cat.name); }} className="text-destructive text-xs hover:underline ml-2">Excluir</button>
                     {expandedCats.includes(cat.name) ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </div>
                 </button>
@@ -176,14 +191,33 @@ const ProductsPanel = () => {
                   <option value="">Selecionar</option>
                   {selectedCat?.subcategories.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                 </select>
+                {!selectedCat && <p className="text-xs text-muted-foreground mt-1">Selecione uma categoria primeiro</p>}
               </div>
               <div className="col-span-2">
                 <label className="text-sm font-medium block mb-1">Descrição</label>
                 <textarea value={formDescription} onChange={e => setFormDescription(e.target.value)} rows={3} className="w-full border border-border rounded-sm p-2 text-sm resize-none" />
               </div>
-              <div>
-                <label className="text-sm font-medium block mb-1">Imagem</label>
-                <div className="border-2 border-dashed border-border rounded-sm p-4 text-center text-sm text-muted-foreground cursor-pointer hover:border-primary transition-colors">Enviar imagem</div>
+              <div className="col-span-2">
+                <label className="text-sm font-medium block mb-1">Imagem do Produto</label>
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
+                {formImage ? (
+                  <div className="relative border border-border rounded-sm overflow-hidden inline-block">
+                    <img src={formImage} alt="Preview" className="w-32 h-32 object-cover" />
+                    <div className="absolute top-1 right-1 flex gap-1">
+                      <button onClick={() => fileRef.current?.click()} className="bg-background/90 p-1 rounded-sm text-xs">Trocar</button>
+                      <button onClick={() => setFormImage("")} className="bg-background/90 p-1 rounded-sm text-destructive"><X className="w-3 h-3" /></button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => fileRef.current?.click()}
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={e => { e.preventDefault(); e.dataTransfer.files[0] && handleFile(e.dataTransfer.files[0]); }}
+                    className="border-2 border-dashed border-border rounded-sm p-4 text-center text-sm text-muted-foreground cursor-pointer hover:border-primary transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Upload className="w-4 h-4" /> Arraste ou clique para enviar imagem
+                  </div>
+                )}
               </div>
             </div>
             <Button variant="shop" onClick={handleSaveProduct}>SALVAR PRODUTO</Button>
@@ -205,8 +239,13 @@ const ProductsPanel = () => {
             <tbody>
               {products.map((p) => (
                 <tr key={p.id} className="border-b border-border">
-                  <td className="py-3 font-medium">{p.name}</td>
-                  <td className="py-3 text-muted-foreground">{p.category} / {p.subcategory}</td>
+                  <td className="py-3">
+                    <div className="flex items-center gap-3">
+                      <img src={p.image} alt={p.name} className="w-10 h-10 object-cover rounded-sm" />
+                      <span className="font-medium">{p.name}</span>
+                    </div>
+                  </td>
+                  <td className="py-3 text-muted-foreground">{p.category}{p.subcategory ? ` / ${p.subcategory}` : ""}</td>
                   <td className="py-3">{p.price}</td>
                   <td className="py-3">{p.stock}</td>
                   <td className="py-3">
