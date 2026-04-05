@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useStore } from "@/contexts/StoreContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Info, ChevronDown, ChevronUp } from "lucide-react";
+import { Info, ChevronUp } from "lucide-react";
 
 const ShippingPanel = () => {
   const { shippingProviders, setShippingProviders } = useStore();
