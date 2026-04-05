@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useStore } from "@/contexts/StoreContext";
 import { Button } from "@/components/ui/button";
-import { X, Info } from "lucide-react";
+import { X, Info, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 const BannersPanel = () => {
@@ -14,6 +14,15 @@ const BannersPanel = () => {
   const [formSubtitle, setFormSubtitle] = useState("");
   const [formCta, setFormCta] = useState("");
   const [formType, setFormType] = useState<"hero" | "promo" | "destaque">("hero");
+  const [formImage, setFormImage] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Envie apenas imagens"); return; }
+    const reader = new FileReader();
+    reader.onload = () => setFormImage(reader.result as string);
+    reader.readAsDataURL(file);
+  };
 
   const handleDelete = (id: number) => {
     setBanners(banners.filter(b => b.id !== id));
@@ -22,28 +31,30 @@ const BannersPanel = () => {
 
   const handleToggle = (id: number) => {
     setBanners(banners.map(b => b.id === id ? { ...b, active: !b.active } : b));
+    const b = banners.find(b => b.id === id);
+    toast.success(b?.active ? "Banner desativado!" : "Banner ativado!");
   };
 
   const handleEdit = (id: number) => {
     const b = banners.find(b => b.id === id);
     if (!b) return;
     setEditing(id); setFormName(b.name); setFormLink(b.link); setFormTitle(b.title);
-    setFormSubtitle(b.subtitle); setFormCta(b.cta); setFormType(b.type);
+    setFormSubtitle(b.subtitle); setFormCta(b.cta); setFormType(b.type); setFormImage(b.image);
     setShowForm(true);
   };
 
   const handleNew = () => {
-    setEditing(null); setFormName(""); setFormLink("/"); setFormTitle(""); setFormSubtitle(""); setFormCta(""); setFormType("hero");
+    setEditing(null); setFormName(""); setFormLink("/categoria/"); setFormTitle(""); setFormSubtitle(""); setFormCta(""); setFormType("hero"); setFormImage("");
     setShowForm(true);
   };
 
   const handleSave = () => {
     if (!formName.trim()) { toast.error("Insira o nome do banner"); return; }
     if (editing) {
-      setBanners(banners.map(b => b.id === editing ? { ...b, name: formName, link: formLink, title: formTitle, subtitle: formSubtitle, cta: formCta, type: formType } : b));
+      setBanners(banners.map(b => b.id === editing ? { ...b, name: formName, link: formLink, title: formTitle, subtitle: formSubtitle, cta: formCta, type: formType, image: formImage } : b));
       toast.success("Banner atualizado!");
     } else {
-      setBanners([...banners, { id: Date.now(), name: formName, image: "", link: formLink, title: formTitle, subtitle: formSubtitle, cta: formCta, active: true, type: formType }]);
+      setBanners([...banners, { id: Date.now(), name: formName, image: formImage, link: formLink, title: formTitle, subtitle: formSubtitle, cta: formCta, active: true, type: formType }]);
       toast.success("Banner criado!");
     }
     setShowForm(false);
@@ -98,13 +109,33 @@ const BannersPanel = () => {
               <input value={formCta} onChange={e => setFormCta(e.target.value)} className="w-full border border-border rounded-sm p-2 text-sm" placeholder="COMPRAR AGORA" />
             </div>
             <div>
-              <label className="text-sm font-medium block mb-1">Link</label>
-              <input value={formLink} onChange={e => setFormLink(e.target.value)} className="w-full border border-border rounded-sm p-2 text-sm" />
+              <label className="text-sm font-medium block mb-1">Link de destino</label>
+              <input value={formLink} onChange={e => setFormLink(e.target.value)} className="w-full border border-border rounded-sm p-2 text-sm" placeholder="/categoria/Feminino" />
+              <p className="text-xs text-muted-foreground mt-1">Ex: /categoria/Feminino, /produto/1, /ofertas</p>
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium block mb-1">Imagem</label>
-            <div className="border-2 border-dashed border-border rounded-sm p-6 text-center text-sm text-muted-foreground cursor-pointer hover:border-primary transition-colors">Arraste ou clique para enviar</div>
+            <label className="text-sm font-medium block mb-1">Imagem do Banner</label>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
+            {formImage ? (
+              <div className="relative border border-border rounded-sm overflow-hidden">
+                <img src={formImage} alt="Preview" className="w-full h-40 object-cover" />
+                <div className="absolute top-2 right-2 flex gap-1">
+                  <button onClick={() => fileRef.current?.click()} className="bg-background/90 p-1.5 rounded-sm text-xs font-medium">Trocar</button>
+                  <button onClick={() => setFormImage("")} className="bg-background/90 p-1.5 rounded-sm text-destructive"><X className="w-3 h-3" /></button>
+                </div>
+              </div>
+            ) : (
+              <div
+                onClick={() => fileRef.current?.click()}
+                onDragOver={e => e.preventDefault()}
+                onDrop={e => { e.preventDefault(); e.dataTransfer.files[0] && handleFile(e.dataTransfer.files[0]); }}
+                className="border-2 border-dashed border-border rounded-sm p-6 text-center text-sm text-muted-foreground cursor-pointer hover:border-primary transition-colors flex flex-col items-center gap-2"
+              >
+                <Upload className="w-5 h-5" />
+                Arraste uma imagem ou clique para enviar
+              </div>
+            )}
           </div>
           <Button variant="shop" onClick={handleSave}>SALVAR</Button>
         </div>
@@ -119,11 +150,15 @@ const BannersPanel = () => {
             {typeBanners.map((b) => (
               <div key={b.id} className="flex items-center justify-between p-4 border border-border rounded-sm mb-2">
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-12 bg-muted rounded-sm" />
+                  {b.image ? (
+                    <img src={b.image} alt={b.name} className="w-20 h-12 object-cover rounded-sm" />
+                  ) : (
+                    <div className="w-20 h-12 bg-muted rounded-sm flex items-center justify-center text-xs text-muted-foreground">Sem img</div>
+                  )}
                   <div>
                     <span className="text-sm font-medium">{b.name}</span>
                     {b.title && <span className="text-xs text-muted-foreground ml-2">"{b.title}"</span>}
-                    <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${b.active ? "bg-green-50 text-green-600" : "bg-muted text-muted-foreground"}`}>
+                    <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${b.active ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"}`}>
                       {b.active ? "Ativo" : "Inativo"}
                     </span>
                   </div>

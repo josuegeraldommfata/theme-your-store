@@ -8,7 +8,6 @@ const Header = () => {
   const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
   const [searchTerm, setSearchTerm] = useState("");
   const [showResults, setShowResults] = useState(false);
-  
 
   const searchResults = searchTerm.length >= 2
     ? products.filter(p => p.active && (
@@ -19,20 +18,25 @@ const Header = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchTerm.trim()) {
-      setShowResults(false);
-      // Could navigate to search results page
-    }
+    if (searchTerm.trim()) setShowResults(false);
   };
 
   return (
     <header className="border-b border-border bg-background sticky top-0 z-50" style={{ backgroundColor: appearance.headerBgColor }}>
       <div className="container flex items-center justify-between py-4">
-        <Link to="/" className="text-3xl font-extrabold tracking-wider">
-          <span style={{ color: appearance.textColor }}>{appearance.storeName.split(" ")[0] || "FLEX"}</span>
-          <span className="text-primary text-lg font-medium tracking-[0.3em] ml-1" style={{ color: appearance.primaryColor }}>
-            {appearance.storeName.split(" ").slice(1).join(" ") || "MODA"}
-          </span>
+        <Link to="/" className="flex items-center gap-2">
+          {appearance.logo ? (
+            <img src={appearance.logo} alt={appearance.storeName} className="h-10 object-contain" />
+          ) : (
+            <>
+              <span className="text-3xl font-extrabold tracking-wider" style={{ color: appearance.textColor }}>
+                {appearance.storeName.split(" ")[0] || "FLEX"}
+              </span>
+              <span className="text-primary text-lg font-medium tracking-[0.3em]" style={{ color: appearance.primaryColor }}>
+                {appearance.storeName.split(" ").slice(1).join(" ") || "MODA"}
+              </span>
+            </>
+          )}
         </Link>
 
         <div className="flex-1 max-w-lg mx-8 relative">
@@ -59,12 +63,7 @@ const Header = () => {
           {showResults && searchResults.length > 0 && (
             <div className="absolute top-full left-0 right-0 bg-background border border-border rounded-sm shadow-lg z-50 mt-1">
               {searchResults.map(p => (
-                <Link
-                  key={p.id}
-                  to={`/produto/${p.id}`}
-                  onClick={() => { setShowResults(false); setSearchTerm(""); }}
-                  className="flex items-center gap-3 p-3 hover:bg-muted transition-colors"
-                >
+                <Link key={p.id} to={`/produto/${p.id}`} onClick={() => { setShowResults(false); setSearchTerm(""); }} className="flex items-center gap-3 p-3 hover:bg-muted transition-colors">
                   <img src={p.image} alt={p.name} className="w-10 h-10 object-cover rounded-sm" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{p.name}</p>

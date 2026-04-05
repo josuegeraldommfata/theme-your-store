@@ -43,12 +43,16 @@ const Footer = () => {
       <div style={{ backgroundColor: appearance.footerBgColor, color: appearance.footerTextColor }}>
         <div className="container py-10">
           <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
-            <div className="text-2xl font-extrabold tracking-wider">
-              {appearance.storeName.split(" ")[0] || "FLEX"}
-              <span className="text-base font-medium tracking-[0.3em] ml-1" style={{ color: appearance.primaryColor }}>
-                {appearance.storeName.split(" ").slice(1).join(" ") || "MODA"}
-              </span>
-            </div>
+            {appearance.logo ? (
+              <img src={appearance.logo} alt={appearance.storeName} className="h-10 object-contain" />
+            ) : (
+              <div className="text-2xl font-extrabold tracking-wider">
+                {appearance.storeName.split(" ")[0] || "FLEX"}
+                <span className="text-base font-medium tracking-[0.3em] ml-1" style={{ color: appearance.primaryColor }}>
+                  {appearance.storeName.split(" ").slice(1).join(" ") || "MODA"}
+                </span>
+              </div>
+            )}
             <div className="flex items-center gap-4">
               <Facebook className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" />
               <Instagram className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" />
