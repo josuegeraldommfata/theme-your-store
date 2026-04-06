@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useStore } from "@/contexts/StoreContext";
 import promo1 from "@/assets/promo-1.jpg";
 import promo2 from "@/assets/promo-2.jpg";
@@ -19,14 +20,19 @@ const PromoBanners = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {promoBanners.map((banner, i) => (
-            <a key={banner.id} href={banner.link || "#"} className="block overflow-hidden rounded-sm group">
+            <Link key={banner.id} to={banner.link || "/"} className="block overflow-hidden rounded-lg group relative shadow-md hover:shadow-xl transition-shadow">
               <img
                 src={banner.image || defaultPromoImages[i % defaultPromoImages.length]}
                 alt={banner.name}
-                className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-300"
+                className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-500"
                 loading="lazy"
               />
-            </a>
+              {banner.title && (
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-4">
+                  <span className="text-white font-bold text-lg drop-shadow-md">{banner.title}</span>
+                </div>
+              )}
+            </Link>
           ))}
         </div>
       </div>
