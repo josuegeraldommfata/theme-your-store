@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Phone, Mail, Clock, MapPin, Facebook, Instagram, Youtube, Twitter, CreditCard, Shield, Lock } from "lucide-react";
+import { Phone, Mail, Clock, MapPin, Facebook, Instagram, Youtube, Twitter, CreditCard, Shield, Lock, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/contexts/StoreContext";
 import { toast } from "sonner";
@@ -23,21 +23,42 @@ const securityLogos: Record<string, { icon: any; color: string }> = {
 
 const Footer = () => {
   const { appearance, settings, paymentBadges, securityBadges, menus } = useStore();
-  const [nlName, setNlName] = useState("");
   const [nlEmail, setNlEmail] = useState("");
 
-  const handleNewsletter = () => {
+  const handleNewsletter = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!nlEmail) { toast.error("Informe seu e-mail"); return; }
     toast.success("Cadastrado com sucesso! Você receberá nossas novidades.");
-    setNlName(""); setNlEmail("");
+    setNlEmail("");
   };
 
   return (
     <footer>
-      <div className="bg-muted py-10 text-center">
-        <Instagram className="w-10 h-10 mx-auto mb-3" />
+      {/* Newsletter */}
+      <div className="py-12 text-center" style={{ backgroundColor: appearance.primaryColor }}>
+        <div className="container">
+          <h3 className="text-white text-2xl font-bold mb-2">Receba nossas novidades</h3>
+          <p className="text-white/80 text-sm mb-6">Cadastre-se e ganhe 10% OFF na primeira compra</p>
+          <form onSubmit={handleNewsletter} className="flex max-w-md mx-auto gap-2">
+            <input
+              placeholder="Seu melhor e-mail"
+              value={nlEmail}
+              onChange={e => setNlEmail(e.target.value)}
+              className="flex-1 rounded-full px-5 py-3 text-sm focus:outline-none"
+              type="email"
+            />
+            <button type="submit" className="bg-foreground text-background font-semibold px-6 py-3 rounded-full text-sm flex items-center gap-2 hover:opacity-90 transition-opacity">
+              <Send className="w-4 h-4" /> CADASTRAR
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Instagram */}
+      <div className="bg-muted py-8 text-center">
+        <Instagram className="w-8 h-8 mx-auto mb-2" />
         <p className="text-muted-foreground text-sm">Siga-nos no Instagram</p>
-        <p className="text-xl font-bold">{settings.instagram}</p>
+        <p className="text-lg font-bold">{settings.instagram}</p>
       </div>
 
       <div style={{ backgroundColor: appearance.footerBgColor, color: appearance.footerTextColor }}>
@@ -54,40 +75,41 @@ const Footer = () => {
               </div>
             )}
             <div className="flex items-center gap-4">
-              <Facebook className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" />
-              <Instagram className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" />
-              <Youtube className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" />
-              <Twitter className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" />
-            </div>
-            <div className="flex items-center gap-3">
-              <input placeholder="Seu nome" value={nlName} onChange={e => setNlName(e.target.value)} className="bg-transparent border border-current/30 px-4 py-2 text-sm rounded-sm" />
-              <input placeholder="Seu e-mail" value={nlEmail} onChange={e => setNlEmail(e.target.value)} className="bg-transparent border border-current/30 px-4 py-2 text-sm rounded-sm" />
-              <button onClick={handleNewsletter} className="font-semibold px-6 py-2 text-sm transition-colors" style={{ backgroundColor: appearance.footerTextColor, color: appearance.footerBgColor }}>CADASTRAR</button>
+              <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"><Facebook className="w-4 h-4" /></a>
+              <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"><Instagram className="w-4 h-4" /></a>
+              <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"><Youtube className="w-4 h-4" /></a>
+              <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"><Twitter className="w-4 h-4" /></a>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
             <div>
-              <h4 className="font-bold mb-4">Categorias</h4>
+              <h4 className="font-bold mb-4 text-sm uppercase tracking-wider">Categorias</h4>
               <ul className="space-y-2 text-sm opacity-70">
                 {menus.slice(0, 5).map(m => (
-                  <li key={m.id}><Link to={m.link} className="hover:opacity-100">{m.label}</Link></li>
+                  <li key={m.id}><Link to={m.link} className="hover:opacity-100 transition-opacity">{m.label}</Link></li>
                 ))}
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-4">Ajuda e Suporte</h4>
+              <h4 className="font-bold mb-4 text-sm uppercase tracking-wider">Institucional</h4>
               <ul className="space-y-2 text-sm opacity-70">
-                <li><Link to="/quem-somos" className="hover:opacity-100">Quem Somos</Link></li>
-                <li><Link to="/ajuda" className="hover:opacity-100">Ajuda e Suporte</Link></li>
-                <li><Link to="/trocas-devolucoes" className="hover:opacity-100">Trocas e Devoluções</Link></li>
-                <li><Link to="/politica-privacidade" className="hover:opacity-100">Política de Privacidade</Link></li>
-                <li><Link to="/fale-conosco" className="hover:opacity-100">Fale Conosco</Link></li>
-                <li><Link to="/login" className="hover:opacity-100">Minha Conta</Link></li>
+                <li><Link to="/quem-somos" className="hover:opacity-100 transition-opacity">Quem Somos</Link></li>
+                <li><Link to="/trocas-devolucoes" className="hover:opacity-100 transition-opacity">Trocas e Devoluções</Link></li>
+                <li><Link to="/politica-privacidade" className="hover:opacity-100 transition-opacity">Política de Privacidade</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-4">Central de Atendimento</h4>
+              <h4 className="font-bold mb-4 text-sm uppercase tracking-wider">Ajuda</h4>
+              <ul className="space-y-2 text-sm opacity-70">
+                <li><Link to="/ajuda" className="hover:opacity-100 transition-opacity">Central de Ajuda</Link></li>
+                <li><Link to="/fale-conosco" className="hover:opacity-100 transition-opacity">Fale Conosco</Link></li>
+                <li><Link to="/login" className="hover:opacity-100 transition-opacity">Minha Conta</Link></li>
+                <li><Link to="/carrinho" className="hover:opacity-100 transition-opacity">Meu Carrinho</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold mb-4 text-sm uppercase tracking-wider">Atendimento</h4>
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center gap-2"><Phone className="w-4 h-4" style={{ color: appearance.primaryColor }} /> {settings.phone}</li>
                 <li className="flex items-center gap-2"><Mail className="w-4 h-4" style={{ color: appearance.primaryColor }} /> {settings.email}</li>
@@ -99,12 +121,12 @@ const Footer = () => {
 
           <div className="flex flex-wrap items-start justify-between gap-8 border-t border-current/20 pt-8">
             <div>
-              <h4 className="font-bold mb-3 text-sm">Pagamento</h4>
+              <h4 className="font-bold mb-3 text-xs uppercase tracking-wider">Formas de Pagamento</h4>
               <div className="flex items-center gap-2 flex-wrap">
                 {paymentBadges.filter(b => b.active).map((badge) => {
                   const style = paymentLogos[badge.name] || { bg: "#666", text: "#fff" };
                   return (
-                    <span key={badge.id} className="text-[10px] font-bold px-3 py-1.5 rounded-sm flex items-center gap-1" style={{ backgroundColor: style.bg, color: style.text }}>
+                    <span key={badge.id} className="text-[10px] font-bold px-3 py-1.5 rounded flex items-center gap-1" style={{ backgroundColor: style.bg, color: style.text }}>
                       <CreditCard className="w-3 h-3" />
                       {badge.name}
                     </span>
@@ -113,14 +135,14 @@ const Footer = () => {
               </div>
             </div>
             <div>
-              <h4 className="font-bold mb-3 text-sm">Segurança</h4>
+              <h4 className="font-bold mb-3 text-xs uppercase tracking-wider">Segurança</h4>
               <div className="flex items-center gap-3">
                 {securityBadges.filter(b => b.active).map((badge) => {
-                  const style = securityLogos[badge.name] || { icon: Shield, color: "#22C55E" };
-                  const Icon = style.icon;
+                  const info = securityLogos[badge.name] || { icon: Shield, color: "#22C55E" };
+                  const Icon = info.icon;
                   return (
-                    <span key={badge.id} className="text-[10px] font-bold px-3 py-2 rounded-sm flex items-center gap-1.5 bg-background text-foreground">
-                      <Icon className="w-4 h-4" style={{ color: style.color }} />
+                    <span key={badge.id} className="text-[10px] font-bold px-3 py-2 rounded flex items-center gap-1.5 bg-background text-foreground">
+                      <Icon className="w-4 h-4" style={{ color: info.color }} />
                       {badge.name}
                     </span>
                   );
