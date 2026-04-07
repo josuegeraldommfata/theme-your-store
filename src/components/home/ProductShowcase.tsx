@@ -9,9 +9,10 @@ interface Props {
   title: string;
   subtitle?: string;
   category?: string;
+  sort?: "featured" | "newest" | "bestseller";
 }
 
-const ProductShowcase = ({ title, subtitle, category }: Props) => {
+const ProductShowcase = ({ title, subtitle, category, sort = "featured" }: Props) => {
   const { products } = useStore();
   const [page, setPage] = useState(0);
   
@@ -20,12 +21,19 @@ const ProductShowcase = ({ title, subtitle, category }: Props) => {
     if (category) {
       filtered = filtered.filter(p => p.category === category);
     }
-    return filtered;
-  }, [products, category]);
+    
+    switch (sort) {
+      case "newest": return [...filtered].sort((a, b) => b.id - a.id);
+      case "bestseller": return [...filtered].sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+      default: return filtered;
+    }
+  }, [products, category, sort]);
 
   const perPage = 4;
   const totalPages = Math.ceil(displayProducts.length / perPage);
   const currentProducts = displayProducts.slice(page * perPage, (page + 1) * perPage);
+
+  if (currentProducts.length === 0) return null;
 
   return (
     <section className="py-12">
@@ -33,7 +41,7 @@ const ProductShowcase = ({ title, subtitle, category }: Props) => {
         <div className="text-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold">{title}</h2>
           {subtitle && <p className="text-muted-foreground text-sm mt-2">{subtitle}</p>}
-          <div className="w-12 h-0.5 bg-border mx-auto mt-4" />
+          <div className="w-12 h-0.5 bg-primary mx-auto mt-4" />
         </div>
         <div className="relative">
           {totalPages > 1 && page > 0 && (

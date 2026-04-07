@@ -6,17 +6,19 @@ import ProductShowcase from "@/components/home/ProductShowcase";
 import PromoBanners from "@/components/home/PromoBanners";
 import BannerDestaque from "@/components/home/BannerDestaque";
 import Testimonials from "@/components/home/Testimonials";
+import CountdownBanner from "@/components/home/CountdownBanner";
 
 const Index = () => (
   <Layout>
     <HeroBanner />
     <BenefitsBar />
     <CategoryCircles />
-    <ProductShowcase title="Produtos em destaque" subtitle="Confira nossas novidades" />
+    <ProductShowcase title="Produtos em Destaque" subtitle="Confira nossas novidades" sort="featured" />
     <PromoBanners />
-    <ProductShowcase title="Lançamentos" subtitle="As peças mais desejadas da temporada" />
+    <CountdownBanner />
+    <ProductShowcase title="Lançamentos" subtitle="As peças mais desejadas da temporada" sort="newest" />
     <BannerDestaque />
-    <ProductShowcase title="Mais Vendidos" subtitle="Os favoritos dos nossos clientes" />
+    <ProductShowcase title="Mais Vendidos" subtitle="Os favoritos dos nossos clientes" sort="bestseller" />
     <Testimonials />
   </Layout>
 );
