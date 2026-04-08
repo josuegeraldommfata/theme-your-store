@@ -3,7 +3,7 @@ import { useStore } from "@/contexts/StoreContext";
 
 const WhatsAppButton = () => {
   const { settings } = useStore();
-  const phone = settings.phone.replace(/\D/g, "");
+  const phone = (settings.whatsapp || settings.phone).replace(/\D/g, "");
 
   return (
     <a
