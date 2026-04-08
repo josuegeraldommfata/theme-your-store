@@ -54,12 +54,14 @@ export interface StoreTestimonial {
 export interface PaymentBadge {
   id: number;
   name: string;
+  image: string;
   active: boolean;
 }
 
 export interface SecurityBadge {
   id: number;
   name: string;
+  image: string;
   active: boolean;
 }
 
@@ -98,6 +100,7 @@ export interface StoreAppearance {
 export interface StoreSettings {
   email: string;
   phone: string;
+  whatsapp: string;
   cnpj: string;
   address: string;
   hours: string;
@@ -219,6 +222,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<StoreSettings>({
     email: "contato@flexmoda.com.br",
     phone: "(11) 99999-0000",
+    whatsapp: "(11) 99999-0000",
     cnpj: "12.345.678/0001-00",
     address: "São Paulo/SP - Brasil",
     hours: "Seg a sex das 9 às 12h | 14-18h",
@@ -261,20 +265,20 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   ]);
 
   const [paymentBadges, setPaymentBadges] = useState<PaymentBadge[]>([
-    { id: 1, name: "Visa", active: true },
-    { id: 2, name: "Mastercard", active: true },
-    { id: 3, name: "Amex", active: true },
-    { id: 4, name: "Elo", active: true },
-    { id: 5, name: "Hipercard", active: true },
-    { id: 6, name: "Discover", active: false },
-    { id: 7, name: "Boleto", active: true },
-    { id: 8, name: "Pix", active: true },
+    { id: 1, name: "Visa", image: "", active: true },
+    { id: 2, name: "Mastercard", image: "", active: true },
+    { id: 3, name: "Amex", image: "", active: true },
+    { id: 4, name: "Elo", image: "", active: true },
+    { id: 5, name: "Hipercard", image: "", active: true },
+    { id: 6, name: "Discover", image: "", active: false },
+    { id: 7, name: "Boleto", image: "", active: true },
+    { id: 8, name: "Pix", image: "", active: true },
   ]);
 
   const [securityBadges, setSecurityBadges] = useState<SecurityBadge[]>([
-    { id: 1, name: "SSL 256 Bits", active: true },
-    { id: 2, name: "Google Safe Browsing", active: true },
-    { id: 3, name: "Norton Secured", active: false },
+    { id: 1, name: "SSL 256 Bits", image: "", active: true },
+    { id: 2, name: "Google Safe Browsing", image: "", active: true },
+    { id: 3, name: "Norton Secured", image: "", active: false },
   ]);
 
   const [paymentGateways, setPaymentGateways] = useState<PaymentGateway[]>([

@@ -15,7 +15,7 @@ const paymentLogos: Record<string, { bg: string; text: string }> = {
   "Pix": { bg: "#32BCAD", text: "#FFFFFF" },
 };
 
-const securityLogos: Record<string, { icon: any; color: string }> = {
+const securityLogos: Record<string, { icon: typeof Shield; color: string }> = {
   "SSL 256 Bits": { icon: Lock, color: "#22C55E" },
   "Google Safe Browsing": { icon: Shield, color: "#4285F4" },
   "Norton Secured": { icon: Shield, color: "#FFCB05" },
@@ -111,7 +111,7 @@ const Footer = () => {
             <div>
               <h4 className="font-bold mb-4 text-sm uppercase tracking-wider">Atendimento</h4>
               <ul className="space-y-3 text-sm">
-                <li className="flex items-center gap-2"><Phone className="w-4 h-4" style={{ color: appearance.primaryColor }} /> {settings.phone}</li>
+                <li className="flex items-center gap-2"><Phone className="w-4 h-4" style={{ color: appearance.primaryColor }} /> {settings.whatsapp || settings.phone}</li>
                 <li className="flex items-center gap-2"><Mail className="w-4 h-4" style={{ color: appearance.primaryColor }} /> {settings.email}</li>
                 <li className="flex items-center gap-2"><Clock className="w-4 h-4" style={{ color: appearance.primaryColor }} /> {settings.hours}</li>
                 <li className="flex items-center gap-2"><MapPin className="w-4 h-4" style={{ color: appearance.primaryColor }} /> {settings.address}</li>
@@ -119,6 +119,7 @@ const Footer = () => {
             </div>
           </div>
 
+          {/* Payment & Security Badges with images */}
           <div className="flex flex-wrap items-start justify-between gap-8 border-t border-current/20 pt-8">
             <div>
               <h4 className="font-bold mb-3 text-xs uppercase tracking-wider">Formas de Pagamento</h4>
@@ -126,9 +127,13 @@ const Footer = () => {
                 {paymentBadges.filter(b => b.active).map((badge) => {
                   const style = paymentLogos[badge.name] || { bg: "#666", text: "#fff" };
                   return (
-                    <span key={badge.id} className="text-[10px] font-bold px-3 py-1.5 rounded flex items-center gap-1" style={{ backgroundColor: style.bg, color: style.text }}>
-                      <CreditCard className="w-3 h-3" />
-                      {badge.name}
+                    <span key={badge.id} className="text-[10px] font-bold px-3 py-1.5 rounded flex items-center gap-1.5 h-9" style={{ backgroundColor: style.bg, color: style.text }}>
+                      {badge.image ? (
+                        <img src={badge.image} alt={badge.name} className="h-5 w-auto object-contain" />
+                      ) : (
+                        <CreditCard className="w-3.5 h-3.5" />
+                      )}
+                      {!badge.image && badge.name}
                     </span>
                   );
                 })}
@@ -141,9 +146,13 @@ const Footer = () => {
                   const info = securityLogos[badge.name] || { icon: Shield, color: "#22C55E" };
                   const Icon = info.icon;
                   return (
-                    <span key={badge.id} className="text-[10px] font-bold px-3 py-2 rounded flex items-center gap-1.5 bg-background text-foreground">
-                      <Icon className="w-4 h-4" style={{ color: info.color }} />
-                      {badge.name}
+                    <span key={badge.id} className="text-[10px] font-bold px-3 py-2 rounded flex items-center gap-1.5 bg-background text-foreground h-10">
+                      {badge.image ? (
+                        <img src={badge.image} alt={badge.name} className="h-6 w-auto object-contain" />
+                      ) : (
+                        <Icon className="w-4 h-4" style={{ color: info.color }} />
+                      )}
+                      {!badge.image && badge.name}
                     </span>
                   );
                 })}
